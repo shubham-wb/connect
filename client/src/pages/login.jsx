@@ -1,26 +1,31 @@
 "use client";
-import React, { useState } from "react";
-import Image from "next/image";
-import { FcGoogle } from "react-icons/fc";
-import { auth, googleProvider } from "@/utils/firebase-config";
+import app from "@/utils/firebase-config";
 import {
-  signInWithPopup,
+  getAuth,
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
+  signInWithPopup,
 } from "firebase/auth";
+import Image from "next/image";
+import { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const auth = getAuth()
   const handleGoogleLogin = async () => {
+
+    const provider = new GoogleAuthProvider()
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, provider);
       console.log("Google login success:", result.user);
     } catch (err) {
       console.error("Google login error:", err);
     }
   };
-
+  const db = app
   const handleEmailLogin = async () => {
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
