@@ -1,5 +1,7 @@
 "use client";
+import { HOST } from "@/utils/ApiRoutes";
 import app from "@/utils/firebase-config";
+import axios from "axios";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -7,6 +9,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
@@ -25,10 +28,28 @@ function Login() {
       console.error("Google login error:", err);
     }
   };
+  const router = useRouter()
   const db = app
   const handleEmailLogin = async () => {
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
+
+      const {
+        user: { displayName, email, photoUrl: profileImage }
+      } = userCred
+
+      try {
+        if (email) {
+          const { data } = await axios.post(`${HOST}/check-user`, { email })
+          console.log(data)
+          if (!data.status) {
+            router.push("/onboarding")
+          }
+        }
+      } catch (err) {
+        console.log(err)
+      }
+
       console.log("Email login success:", userCred.user);
     } catch (err) {
       console.error("Email login error:", err);
