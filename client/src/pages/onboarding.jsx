@@ -6,6 +6,7 @@ function onboarding() {
 
 
   const [{ userInfo }] = useStateProvider()
+  console.log("userInfo", userInfo);
 
   return <div className="bg-panel-header-background h-screen w-screen text-white flex flex-col items-center justify-center">
     <div className="flex items-center justify-center gap-2">
@@ -16,6 +17,8 @@ function onboarding() {
         width={300}
       />
       <span className="text-7xl">
+
+
         Whatsapp
       </span>
     </div>
