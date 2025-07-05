@@ -1,10 +1,18 @@
+"use client"
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaCamera } from "react-icons/fa";
 import ContextMenu from "./ContextMenu";
+import PhotoPicker from "./PhotoPicker";
 function Avatar({ type, image, setImage }) {
   const [hover, setHover] = useState(false)
+  const [mounted, setMounted] = useState(true)
 
+  useEffect(() => {
+    if (!mounted) {
+      setMounted(true)
+    }
+  }, [])
 
   const [isContextOpen, setIsContextOpen] = useState(false)
 
@@ -22,11 +30,14 @@ function Avatar({ type, image, setImage }) {
     })
   }
 
+  const [grabPhoto, setGrabPhoto] = useState(true)
 
   const contextMenuOptions = [
     {
       name: "Take Photo",
-      callback: () => { }
+      callback: () => {
+        setGrabPhoto(true)
+      }
     },
     {
       name: "Choose from Library",
@@ -34,15 +45,55 @@ function Avatar({ type, image, setImage }) {
     },
     {
       name: "Upload Photo",
-      callback: () => { }
+      callback: () => {
+        setGrabPhoto(true)
+      }
     },
     {
       name: "Remove Photo",
-      callback: () => { }
+      callback: () => {
+
+        setImage("/default_avatar.png")
+      }
     }
+
 
   ]
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && grabPhoto) {
+      const timeout = setTimeout(() => {
+        const input = document.getElementById("photo-picker");
+        if (input) {
+          input.click();
+        }
+      }, 100); // delay a bit to wait for mount
+
+      // document.body.onfocus = () => {
+      //   setGrabPhoto(false);
+      // };
+
+      return () => clearTimeout(timeout);
+    }
+  }, [grabPhoto]);
+
+  async function photoPickerChange(e) {
+    console.log(e, "mental")
+    const file = e.target.files[0]
+    console.log({ file })
+    const reader = new FileReader()
+    const data = document.createElement("img")
+    reader.onload = function (event) {
+      data.src = event.target.result
+      data.setAttribute("data-src", event.target.result)
+    }
+    reader.readAsDataURL(file)
+
+    console.log(data.src, "@issue")
+    setTimeout(() => {
+      setImage(data.src)
+    }, 100)
+  }
   return <>
     <div className="flex items-center justify-center">
       {
@@ -90,10 +141,17 @@ function Avatar({ type, image, setImage }) {
         setContextMenu={setIsContextOpen}
       />
         :
-        <> </>
+        <>
+        </>
     }
+
+    <PhotoPicker onChange={photoPickerChange} />
+
   </>
 
 }
+
+
+
 
 export default Avatar;
